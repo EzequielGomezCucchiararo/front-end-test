@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+	<meta charset="utf-8">
+  <title>Softonic Javascript Access Test</title>
+  <link rel="stylesheet" href="css/bulma.css">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="container panel">
+    <p class="panel-heading">Awesome series and actors finder</p>
+    <form class="search-form field has-addons">
+      <p class="control">
+        <span class="select">
+          <select>
+            <option>Series</option>
+            <option>Actors</option>
+          </select>
+        </span>
+      </p>
+      <p class="control search-form__input">
+        <input id="searchInput" class="input" type="text" placeholder="Search">
+      </p>
+      <p class="control">
+        <button id="searchBtn" class="button">Search</button>
+      </p>
+    </form>
+
+    <!-- block search-results -->
+    <ul id="resultsList" class="panel-block search-results"> </ul>
+    <!-- endblock Search-results -->
+
+    <!-- block favorites -->
+    <p class="panel-heading">
+      Favorites
+    </p>
+    <div  class="panel-block favorites">
+      <ul>
+        <!-- selected favorite item example -->
+        <li class="box favorites__item selected">
+          <article class="media">
+            <div class="media-left cover">
+              <figure class="image cover__image">
+                <img src="http://static.tvmaze.com/uploads/images/medium_portrait/95/239484.jpg" alt="Jennifer Lawrence">
+              </figure>
+            </div>
+            <div class="media-content">
+              <p><strong>Jennifer Lawrence</strong></p>
+              <span class="tag">actors</span>
+            </div>
+            <div class="media-right">
+              <a class="button is-info is-outlined">
+                <span>Selected</span>
+                <span class="icon is-small"><i class="fa fa-check"></i></span>
+              </a>
+            </div>
+          </article>
+        </li>
+        <!-- end selected favorite item example -->
+
+        <!-- not selected favorite item example -->
+        <li class="box favorites__item">
+          <article class="media">
+            <div class="media-left cover">
+              <figure class="image cover__image">
+                <img src="http://static.tvmaze.com/uploads/images/medium_portrait/124/310209.jpg" alt="Game of Thrones">
+              </figure>
+            </div>
+            <div class="media-content">
+              <p><strong>Game of Thrones</strong> <small>(HBO)</small></p>
+              <span class="tag">Drama</span>
+              <span class="tag">Adventure</span>
+              <span class="tag">Fantasy</span>
+            </div>
+            <div class="media-right">
+              <span class="button is-info is-outlined">
+                <span>Selected</span>
+                <span class="icon is-small"><i class="fa fa-check"></i></span>
+              </span>
+            </div>
+          </article>
+        </li>
+        <!-- end not selected favorite item example -->
+
+        <!-- selected favorite item example -->
+        <li class="box favorites__item selected">
+          <article class="media">
+            <div class="media-left cover">
+              <figure class="image cover__image">
+                <img src="http://static.tvmaze.com/uploads/images/medium_portrait/121/304437.jpg" alt="Vikings">
+              </figure>
+            </div>
+            <div class="media-content">
+              <p><strong>Vikings</strong> <small>(History)</small></p>
+              <span class="tag">Drama</span>
+              <span class="tag">Action</span>
+              <span class="tag">History</span>
+            </div>
+            <div class="media-right">
+              <span class="button is-info is-outlined">
+                <span>Selected</span>
+                <span class="icon is-small"><i class="fa fa-check"></i></span>
+              </span>
+            </div>
+          </article>
+        </li>
+        <!-- selected favorite item example -->
+
+      </ul>
+      <div class="media favorites__actions">
+        <p class="media-content"><strong>2</strong> items selected</p>
+        <p class="media-right">
+          <span class="button is-danger is-outlined">
+            <span>Delete selected</span>
+            <span class="icon is-small"><i class="fa fa-times"></i></span>
+          </span>
+        </p>
+      </div>
+    </div>
+    <!-- endblock favorites -->
+  </div>
+  <!-- Scripts -->
+  <script src="js/build/app.js"></script>
+</body>
+</html>
