@@ -13,9 +13,9 @@
     <form class="search-form field has-addons">
       <p class="control">
         <span class="select">
-          <select>
-            <option>Series</option>
-            <option>Actors</option>
+          <select id="typeSelect">
+            <option value="series">Series</option>
+            <option value="actors">Actors</option>
           </select>
         </span>
       </p>
@@ -39,9 +39,9 @@
       <ul>
         <!-- selected favorite item example -->
         <li class="box favorites__item selected">
-          <article class="media">
+          <article class="media" class="bootstrap-article">
             <div class="media-left cover">
-              <figure class="image cover__image">
+              <figure class="image cover__image"> 
                 <img src="http://static.tvmaze.com/uploads/images/medium_portrait/95/239484.jpg" alt="Jennifer Lawrence">
               </figure>
             </div>
@@ -82,30 +82,6 @@
           </article>
         </li>
         <!-- end not selected favorite item example -->
-
-        <!-- selected favorite item example -->
-        <li class="box favorites__item selected">
-          <article class="media">
-            <div class="media-left cover">
-              <figure class="image cover__image">
-                <img src="http://static.tvmaze.com/uploads/images/medium_portrait/121/304437.jpg" alt="Vikings">
-              </figure>
-            </div>
-            <div class="media-content">
-              <p><strong>Vikings</strong> <small>(History)</small></p>
-              <span class="tag">Drama</span>
-              <span class="tag">Action</span>
-              <span class="tag">History</span>
-            </div>
-            <div class="media-right">
-              <span class="button is-info is-outlined">
-                <span>Selected</span>
-                <span class="icon is-small"><i class="fa fa-check"></i></span>
-              </span>
-            </div>
-          </article>
-        </li>
-        <!-- selected favorite item example -->
 
       </ul>
       <div class="media favorites__actions">

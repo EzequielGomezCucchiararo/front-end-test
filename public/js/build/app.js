@@ -22737,110 +22737,189 @@ exports.tryCatch = tryCatch;
 ;
 
 },{"./errorObject":435}],452:[function(require,module,exports){
-const Rx = require('rxjs');
+(() => {
+  const favouriteService = require('./favourites.service');
 
-const htmlSearchBtn = document.getElementById("searchBtn");
-const htmlSearchInput = document.getElementById("searchInput");
-const htmlResultsList = document.getElementById("resultsList");
+  module.exports = {
+    createSearchResult
+  };
 
-const searchBtn$ = Rx.Observable
-  .fromEvent(htmlSearchBtn, "click")
-  .map(event => {
-    event.preventDefault();
-    return htmlSearchInput.value;
-  })
-  .flatMap(searchValue => getSeries(encodeURI(searchValue)));
+  function createSearchResult(type, element) {
+    type = type === 'series' ? 'show' : 'person';
 
-searchBtn$.subscribe(response => {
-    htmlResultsList.innerHTML = '';
-    for (let element of response) {
-      let li = searchResultElement(element);
-      htmlResultsList.appendChild(li);
-    }
-  });
+    let li = document.createElement('li');
+    let article = document.createElement('article');
+    let divCover = document.createElement('div');
+    let divContent = document.createElement('div');
+    let divRight = document.createElement('div');
+    let figureImg = document.createElement('figure');
+    let img = document.createElement('img');
+    let pName = document.createElement('p');
+    let strongName = document.createElement('strong');
+    let smallNetwork = document.createElement('small');
+    let aButton = document.createElement('a');
+    let spanSave = document.createElement('span');
+    let spanIcon = document.createElement('span');
+    let icon = document.createElement('i');
 
-function getSeries(value) {
-  let stream = fetch(`http://api.tvmaze.com/search/shows?q=${value}`)
-    .then(response => response.json())
-    .catch(error => Rx.Observable.empty());
-  return (Rx.Observable.fromPromise(stream));
-}
+    // divCover
+    divCover.className = 'media-left cover';
+    figureImg.className = 'image cover__image';
+    img.src = element[type].image ? element[type].image.medium : './images/no-image.png';
+    img.alt = element[type].name;
+    figureImg.appendChild(img);
+    divCover.appendChild(figureImg)
 
-function searchResultElement(element) {
-  let li = document.createElement('li');
-  let article = document.createElement('article');
-  let divCover = document.createElement('div');
-  let divContent = document.createElement('div');
-  let divRight = document.createElement('div');
-  let figureImg = document.createElement('figure');
-  let img = document.createElement('img');
-  let pName = document.createElement('p');
-  let strongName = document.createElement('strong');
-  let smallNetwork = document.createElement('small');
-  let aButton = document.createElement('a');
-  let spanSave = document.createElement('span');
-  let spanIcon = document.createElement('span');
-  let icon = document.createElement('i');
+    // divContent
+    divContent.className = 'media-content';
+    strongName.innerHTML = element[type].name;
+    smallNetwork.innerHTML = element[type].network ? `(${element[type].network.name})` : ' ';
+    pName.appendChild(strongName);
+    pName.appendChild(document.createTextNode(' '));
+    pName.appendChild(smallNetwork);
+    divContent.appendChild(pName);
+    addTags(divContent, type === 'show' ? element[type].genres : ['actors']);
 
-  // divCover
-  divCover.className = 'media-left cover';
-  figureImg.className = 'image cover__image';
-  img.src = element.show.image ? element.show.image.medium : './images/no-image.png';
-  img.alt = element.show.name;
-  figureImg.appendChild(img);
-  divCover.appendChild(figureImg)
+    // divRight
+    divRight.className = 'media-right';
+    aButton.className = 'button is-success is-outlined';
+    spanSave.innerHTML = 'Save';
+    spanIcon.className = 'icon is-small';
+    icon.className = 'fa fa-heart';
+    spanIcon.appendChild(icon);
+    aButton.appendChild(spanSave);
+    aButton.appendChild(spanIcon);
+    spanIcon.appendChild(icon);
+    aButton.appendChild(spanSave);
+    aButton.appendChild(spanIcon);
+    aButton.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      favouriteService.onSaveSubject$.next(element)
+      li.parentNode.removeChild(li);
+    })
+    divRight.appendChild(aButton);
 
-  // divContent
-  divContent.className = 'media-content';
-  strongName.innerHTML = element.show.name;
-  smallNetwork.innerHTML = element.show.network ? `(${element.show.network.name})` : ' ';
-  pName.appendChild(strongName);
-  pName.appendChild(document.createTextNode(' '));
-  pName.appendChild(smallNetwork);
-  divContent.appendChild(pName);
-  addGenres(divContent, element.show.genres);
+    // article
+    article.className = 'media';
+    article.appendChild(divCover);
+    article.appendChild(divContent);
+    article.appendChild(divRight);
 
-  // divRight
-  divRight.className = 'media-right';
-  aButton.className = 'button is-success is-outlined';
-  spanSave.innerHTML = 'Save';
-  spanIcon.className = 'icon is-small';
-  icon.className = 'fa fa-heart';
-  spanIcon.appendChild(icon);
-  aButton.appendChild(spanSave);
-  aButton.appendChild(spanIcon);
-  spanIcon.appendChild(icon);
-  aButton.appendChild(spanSave);
-  aButton.appendChild(spanIcon);
-  divRight.appendChild(aButton);
+    // li
+    li.id = element[type].id;
+    li.className = 'box';
+    li.appendChild(article);
 
-  // article
-  article.className = 'media';
-  article.appendChild(divCover);
-  article.appendChild(divContent);
-  article.appendChild(divRight);
+    return li;
 
-  // li
-  li.id = element.show.id;
-  li.className = 'box';
-  li.appendChild(article);
+    /**
+     * @param {*} element 
+     * @param {*} genres 
+     */
+    function addTags(element, tags) {
+      for (let tag of tags) {
+        createTag(element, tag)
+      }
+    };
 
-  return li;
-
-  /**
-   * @param {*} element 
-   * @param {*} genres 
-   */
-  function addGenres(element, genres) {
-    for (let genre of genres) {
+    function createTag(element, tag) {
       let span = document.createElement('span');
       span.className = 'tag';
-      span.innerHTML = genre;
+      span.innerHTML = tag;
       element.appendChild(span);
       element.appendChild(document.createTextNode(' '));
     }
+
+  }
+})();
+},{"./favourites.service":453}],453:[function(require,module,exports){
+(() => {
+  const Rx = require('rxjs');
+
+  const onSaveSubject$ = new Rx.Subject();
+
+  module.exports = {
+    onSaveSubject$: onSaveSubject$,
+  };
+
+
+})();
+},{"rxjs":9}],454:[function(require,module,exports){
+(() => {
+  const Rx = require('rxjs');
+
+  const utilsService = require('./utils.service')
+  const elementsService = require('./elements.service')
+  const favouriteService = require('./favourites.service');
+
+  const DOMSearchBtn = document.getElementById("searchBtn");
+  const DOMSearchInput = document.getElementById("searchInput");
+  const DOMResultsList = document.getElementById("resultsList");
+  const DOMTypeSelect = document.getElementById("typeSelect");
+
+  let typeSelected = DOMTypeSelect.value;
+
+  const typeSelect$ = Rx.Observable
+    .fromEvent(DOMTypeSelect, 'change')
+    .subscribe(e => { typeSelected = e.target.value });
+
+  const searchBtn$ = Rx.Observable
+    .fromEvent(DOMSearchBtn, "click")
+    .map(event => {
+      event.preventDefault();
+      return DOMSearchInput.value;
+    })
+    .debounceTime(250)
+    .switchMap(searchValue => utilsService.getHandler(typeSelected, searchValue))
+
+  const searchBtnSubscription = searchBtn$.subscribe(response => {
+    console.warn(response);
+    utilsService.buildResults(typeSelected, DOMResultsList, response);
+  });
+
+  const favouritesSubscription = favouriteService.onSaveSubject$
+    .subscribe(id => {
+      console.warn(id);
+    })
+
+})();
+},{"./elements.service":452,"./favourites.service":453,"./utils.service":455,"rxjs":9}],455:[function(require,module,exports){
+(() => {
+  const Rx = require('rxjs');
+  const elementsService = require('./elements.service');
+
+  const baseUrl = {
+    series: 'http://api.tvmaze.com/search/shows?q=',
+    actors: 'http://api.tvmaze.com/search/people?q='
   }
 
-}
+  module.exports = {
+    getHandler,
+    buildResults,
+    buildFavourites
+  };
 
-},{"rxjs":9}]},{},[452]);
+  function buildResults(type, ulDomElement, data) {
+    ulDomElement.innerHTML = '';
+      for (let element of data) {
+        let li = elementsService.createSearchResult(type, element);
+        ulDomElement.appendChild(li);
+      }
+  };
+
+  function buildFavourites(ulDomElement, data) {
+    return true;
+  };
+
+  function getHandler(type, query) {
+    let parsedQuery = encodeURI(query);
+    let url = baseUrl[type] + parsedQuery;
+    let stream = fetch(url)
+      .then(response => response.json())
+      .catch(error => Rx.Observable.empty());
+    return (Rx.Observable.fromPromise(stream));
+  };
+
+})();
+},{"./elements.service":452,"rxjs":9}]},{},[454]);
