@@ -26,7 +26,6 @@
     .switchMap(searchValue => utilsService.getHandler(typeSelected, searchValue))
 
   const searchBtnSubscription = searchBtn$.subscribe(response => {
-    console.warn(response);
     utilsService.buildResults(typeSelected, DOMResultsList, response);
   });
 

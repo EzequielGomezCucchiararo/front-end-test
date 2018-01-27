@@ -2,10 +2,10 @@
   const favouriteService = require('./favourites.service');
 
   module.exports = {
-    createSearchResult
+    buildResult
   };
 
-  function createSearchResult(type, element) {
+  function buildResult(type, element, isFavourite) {
     type = type === 'series' ? 'show' : 'person';
 
     let li = document.createElement('li');
@@ -21,6 +21,8 @@
     let aButton = document.createElement('a');
     let spanSave = document.createElement('span');
     let spanIcon = document.createElement('span');
+    let spanButton = document.createElement('span');
+    let spanSelected = document.createElement('span');
     let icon = document.createElement('i');
 
     // divCover
@@ -43,22 +45,25 @@
 
     // divRight
     divRight.className = 'media-right';
-    aButton.className = 'button is-success is-outlined';
-    spanSave.innerHTML = 'Save';
-    spanIcon.className = 'icon is-small';
-    icon.className = 'fa fa-heart';
-    spanIcon.appendChild(icon);
-    aButton.appendChild(spanSave);
-    aButton.appendChild(spanIcon);
-    spanIcon.appendChild(icon);
-    aButton.appendChild(spanSave);
-    aButton.appendChild(spanIcon);
-    aButton.addEventListener('click', event => {
-      event.preventDefault();
-      event.stopPropagation();
-      favouriteService.onSaveSubject$.next(element)
-      li.parentNode.removeChild(li);
-    })
+
+    if (!isFavourite) {
+      aButton.className = 'button is-success is-outlined';
+      spanSave.innerHTML = 'Save';
+      spanIcon.className = 'icon is-small';
+      icon.className = 'fa fa-heart';
+      spanIcon.appendChild(icon);
+      aButton.appendChild(spanSave);
+      aButton.appendChild(spanIcon);
+      spanIcon.appendChild(icon);
+      aButton.appendChild(spanSave);
+      aButton.appendChild(spanIcon);
+      aButton.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        favouriteService.onSaveSubject$.next(element)
+        li.parentNode.removeChild(li);
+      })
+    }
     divRight.appendChild(aButton);
 
     // article
@@ -69,7 +74,7 @@
 
     // li
     li.id = element[type].id;
-    li.className = 'box';
+    li.className = isFavourite ? 'box favorites__item' : 'box';
     li.appendChild(article);
 
     return li;

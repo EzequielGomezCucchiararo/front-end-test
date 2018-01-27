@@ -10,19 +10,14 @@
   module.exports = {
     getHandler,
     buildResults,
-    buildFavourites
   };
 
-  function buildResults(type, ulDomElement, data) {
+  function buildResults(type, ulDomElement, data, isFavourite = false) {
     ulDomElement.innerHTML = '';
       for (let element of data) {
-        let li = elementsService.createSearchResult(type, element);
+        let li = elementsService.buildResult(type, element, isFavourite);
         ulDomElement.appendChild(li);
       }
-  };
-
-  function buildFavourites(ulDomElement, data) {
-    return true;
   };
 
   function getHandler(type, query) {
