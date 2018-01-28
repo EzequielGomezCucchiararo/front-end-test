@@ -22740,22 +22740,19 @@ exports.tryCatch = tryCatch;
 (() => {
   const Rx = require('rxjs');
 
-  const handlersService = require('./services/handlers.service')
+  const utilsService = require('./services/utils.service')
   const elementsService = require('./services/elements.service')
   const favouriteService = require('./services/favourites.service');
+  const sessionService = require('./services/session.service');
 
   const DOMSearchBtn = document.getElementById("searchBtn");
   const DOMSearchInput = document.getElementById("searchInput");
   const DOMResultsList = document.getElementById("resultsList");
   const DOMTypeSelect = document.getElementById("typeSelect");
-  const DOMFavList = document.getElementById("favList");
-
-  const favourites = favouriteService.getFavourites();
-  const selected = [];
 
   let typeSelected = DOMTypeSelect.value;
 
-  elementsService.buildResults(DOMFavList, favourites, true);
+console.warn(sessionService);
 
   const typeSelect$ = Rx.Observable
     .fromEvent(DOMTypeSelect, 'change')
@@ -22768,44 +22765,28 @@ exports.tryCatch = tryCatch;
       return DOMSearchInput.value;
     })
     .debounceTime(250)
-    .switchMap(searchValue => handlersService.getHandler(typeSelected, searchValue))
+    .switchMap(searchValue => utilsService.getHandler(typeSelected, searchValue))
 
   const searchBtnSubscription = searchBtn$.subscribe(response => {
-    elementsService.buildResults(DOMResultsList, response);
+    utilsService.buildResults(typeSelected, DOMResultsList, response);
   });
 
   const favouritesSubscription = favouriteService.onSaveSubject$
-    .subscribe(element => {
-      DOMFavList.appendChild(elementsService.buildResult(element, true));
-    })
-
-  const favouriteSelectedSubscription = favouriteService.onSelectSubject$
     .subscribe(id => {
-      index = selected.findIndex(e => e === id);
-      index === -1 ? selected.push(id) : selected.splice(index, 1);
-      console.warn(selected);
+      console.warn(id);
     })
 
 })();
-},{"./services/elements.service":453,"./services/favourites.service":454,"./services/handlers.service":455,"rxjs":9}],453:[function(require,module,exports){
+},{"./services/elements.service":453,"./services/favourites.service":454,"./services/session.service":455,"./services/utils.service":456,"rxjs":9}],453:[function(require,module,exports){
 (() => {
   const favouriteService = require('./favourites.service');
 
   module.exports = {
-    buildResults,
     buildResult
   };
 
-  function buildResults(ulDomElement, data, isFavourite = false) {
-    ulDomElement.innerHTML = '';
-      for (let element of data) {
-        let li = buildResult(element, isFavourite);
-        ulDomElement.appendChild(li);
-      }
-  };
-
-  function buildResult(element, isFavourite) {
-    let type = element.show ? 'show' : 'person';
+  function buildResult(type, element, isFavourite) {
+    type = type === 'series' ? 'show' : 'person';
 
     let li = document.createElement('li');
     let article = document.createElement('article');
@@ -22859,26 +22840,11 @@ exports.tryCatch = tryCatch;
       aButton.addEventListener('click', event => {
         event.preventDefault();
         event.stopPropagation();
-        favouriteService.addToFavourite(type, element);
         favouriteService.onSaveSubject$.next(element)
         li.parentNode.removeChild(li);
       })
-      divRight.appendChild(aButton);
-    } else {
-      divRight.innerHTML = 
-      `<a class="button is-info is-outlined" style="display: none;">
-        <span>Selected</span>
-        <span class="icon is-small">
-          <i class="fa fa-check"></i>
-        </span>
-      </a>`;
-      li.addEventListener('click', event => {
-        event.stopPropagation();
-        let firstChild = divRight.childNodes[0];
-        firstChild.style.display = firstChild.style.display === 'none' ? 'block' : 'none';
-        favouriteService.onSelectSubject$.next(element[type].id);
-      });
     }
+    divRight.appendChild(aButton);
 
     // article
     article.className = 'media';
@@ -22893,9 +22859,13 @@ exports.tryCatch = tryCatch;
 
     return li;
 
+    /**
+     * @param {*} element 
+     * @param {*} genres 
+     */
     function addTags(element, tags) {
       for (let tag of tags) {
-        createTag(element, tag);
+        createTag(element, tag)
       }
     };
 
@@ -22918,38 +22888,17 @@ exports.tryCatch = tryCatch;
 
   module.exports = {
     onSaveSubject$: onSaveSubject$,
-    onSelectSubject$: onSelectSubject$,
-    addToFavourite,
-    removeFavourite,
-    selectFavourite,
-    getFavourites
+    onSelectSubject$: onSelectSubject$
   };
-
-  function selectFavourite() {
-
-  }
-
-  function addToFavourite(type, element) {
-    localStorage.setItem(element[type].id, JSON.stringify(element));
-  }
-
-  function removeFavourite(type, element) {
-    localStorage.removeItem(element[type].id);
-  }
-
-  function getFavourites() {
-    const favourites = [];
-    for (let id in localStorage) {
-      if (localStorage.hasOwnProperty(id) && !isNaN(id)) {
-        let element = JSON.parse(localStorage[id]);
-        favourites.push(element);
-      }
-    }
-    return favourites;
-  }
 
 })();
 },{"rxjs":9}],455:[function(require,module,exports){
+(()=>{
+  module.exports = {
+    hola: 1
+  }
+})()
+},{}],456:[function(require,module,exports){
 (() => {
   const Rx = require('rxjs');
   const elementsService = require('./elements.service');
@@ -22960,7 +22909,16 @@ exports.tryCatch = tryCatch;
   }
 
   module.exports = {
-    getHandler
+    getHandler,
+    buildResults,
+  };
+
+  function buildResults(type, ulDomElement, data, isFavourite = false) {
+    ulDomElement.innerHTML = '';
+      for (let element of data) {
+        let li = elementsService.buildResult(type, element, isFavourite);
+        ulDomElement.appendChild(li);
+      }
   };
 
   function getHandler(type, query) {

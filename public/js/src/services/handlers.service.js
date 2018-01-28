@@ -8,16 +8,7 @@
   }
 
   module.exports = {
-    getHandler,
-    buildResults,
-  };
-
-  function buildResults(type, ulDomElement, data, isFavourite = false) {
-    ulDomElement.innerHTML = '';
-      for (let element of data) {
-        let li = elementsService.buildResult(type, element, isFavourite);
-        ulDomElement.appendChild(li);
-      }
+    getHandler
   };
 
   function getHandler(type, query) {

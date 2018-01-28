@@ -2,11 +2,20 @@
   const favouriteService = require('./favourites.service');
 
   module.exports = {
+    buildResults,
     buildResult
   };
 
-  function buildResult(type, element, isFavourite) {
-    type = type === 'series' ? 'show' : 'person';
+  function buildResults(ulDomElement, data, isFavourite = false) {
+    ulDomElement.innerHTML = '';
+      for (let element of data) {
+        let li = buildResult(element, isFavourite);
+        ulDomElement.appendChild(li);
+      }
+  };
+
+  function buildResult(element, isFavourite) {
+    let type = element.show ? 'show' : 'person';
 
     let li = document.createElement('li');
     let article = document.createElement('article');
@@ -60,11 +69,26 @@
       aButton.addEventListener('click', event => {
         event.preventDefault();
         event.stopPropagation();
+        favouriteService.addToFavourite(type, element);
         favouriteService.onSaveSubject$.next(element)
         li.parentNode.removeChild(li);
       })
+      divRight.appendChild(aButton);
+    } else {
+      divRight.innerHTML = 
+      `<a class="button is-info is-outlined" style="display: none;">
+        <span>Selected</span>
+        <span class="icon is-small">
+          <i class="fa fa-check"></i>
+        </span>
+      </a>`;
+      li.addEventListener('click', event => {
+        event.stopPropagation();
+        let firstChild = divRight.childNodes[0];
+        firstChild.style.display = firstChild.style.display === 'none' ? 'block' : 'none';
+        favouriteService.onSelectSubject$.next(element[type].id);
+      });
     }
-    divRight.appendChild(aButton);
 
     // article
     article.className = 'media';
@@ -79,13 +103,9 @@
 
     return li;
 
-    /**
-     * @param {*} element 
-     * @param {*} genres 
-     */
     function addTags(element, tags) {
       for (let tag of tags) {
-        createTag(element, tag)
+        createTag(element, tag);
       }
     };
 
