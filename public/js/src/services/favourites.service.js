@@ -9,20 +9,21 @@
     onSelectSubject$: onSelectSubject$,
     addToFavourite,
     removeFavourite,
-    selectFavourite,
-    getFavourites
+    getFavourites,
+    isFavourite
   };
 
-  function selectFavourite() {
-
-  }
-
   function addToFavourite(type, element) {
-    localStorage.setItem(element[type].id, JSON.stringify(element));
+    let id = element[type].id;
+    localStorage.setItem(id, JSON.stringify(element));
   }
 
-  function removeFavourite(type, element) {
-    localStorage.removeItem(element[type].id);
+  function isFavourite(id) {
+    return !!localStorage.hasOwnProperty(id);
+  }
+
+  function removeFavourite(id) {
+    localStorage.removeItem(id);
   }
 
   function getFavourites() {

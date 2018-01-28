@@ -16,7 +16,7 @@
 
   function buildResult(element, isFavourite) {
     let type = element.show ? 'show' : 'person';
-
+    let id = element[type].id;
     let li = document.createElement('li');
     let article = document.createElement('article');
     let divCover = document.createElement('div');
@@ -69,8 +69,10 @@
       aButton.addEventListener('click', event => {
         event.preventDefault();
         event.stopPropagation();
-        favouriteService.addToFavourite(type, element);
-        favouriteService.onSaveSubject$.next(element)
+        if (!favouriteService.isFavourite(id)) {
+          favouriteService.addToFavourite(type, element);
+          favouriteService.onSaveSubject$.next(element);
+        }
         li.parentNode.removeChild(li);
       })
       divRight.appendChild(aButton);
@@ -86,7 +88,7 @@
         event.stopPropagation();
         let firstChild = divRight.childNodes[0];
         firstChild.style.display = firstChild.style.display === 'none' ? 'block' : 'none';
-        favouriteService.onSelectSubject$.next(element[type].id);
+        favouriteService.onSelectSubject$.next(id);
       });
     }
 
@@ -97,7 +99,7 @@
     article.appendChild(divRight);
 
     // li
-    li.id = element[type].id;
+    li.id = id;
     li.className = isFavourite ? 'box favorites__item' : 'box';
     li.appendChild(article);
 
@@ -115,7 +117,7 @@
       span.innerHTML = tag;
       element.appendChild(span);
       element.appendChild(document.createTextNode(' '));
-    }
+    };
 
   }
 })();

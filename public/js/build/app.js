@@ -22749,6 +22749,8 @@ exports.tryCatch = tryCatch;
   const DOMResultsList = document.getElementById("resultsList");
   const DOMTypeSelect = document.getElementById("typeSelect");
   const DOMFavList = document.getElementById("favList");
+  const DOMItemsSelected = document.getElementById("itemsSelected");
+  const DOMDeleteSelected = document.getElementById("deleteSelected");
 
   const favourites = favouriteService.getFavourites();
   const selected = [];
@@ -22756,6 +22758,9 @@ exports.tryCatch = tryCatch;
   let typeSelected = DOMTypeSelect.value;
 
   elementsService.buildResults(DOMFavList, favourites, true);
+
+  const onDeleteSelected$ = Rx.Observable
+    .fromEvent(DOMDeleteSelected, "click");
 
   const typeSelect$ = Rx.Observable
     .fromEvent(DOMTypeSelect, 'change')
@@ -22777,15 +22782,30 @@ exports.tryCatch = tryCatch;
   const favouritesSubscription = favouriteService.onSaveSubject$
     .subscribe(element => {
       DOMFavList.appendChild(elementsService.buildResult(element, true));
-    })
+    });
 
   const favouriteSelectedSubscription = favouriteService.onSelectSubject$
-    .subscribe(id => {
-      index = selected.findIndex(e => e === id);
-      index === -1 ? selected.push(id) : selected.splice(index, 1);
-      console.warn(selected);
-    })
+    .subscribe(id => { refreshSelectSection(id); });
 
+  const onDeleteSelectedSubscription = onDeleteSelected$
+    .subscribe(onDeleteSelectedHandler);
+
+  function refreshSelectSection(id) {
+    let index = selected.findIndex(e => e === id);
+    index === -1 ? selected.push(id) : selected.splice(index, 1);
+    DOMItemsSelected.childNodes[0].innerText = selected.length;
+    DOMItemsSelected.style.visibility = selected.length ? 'visible' : 'hidden';
+    DOMDeleteSelected.style.visibility = selected.length ? 'visible' : 'hidden';
+  }
+
+  function onDeleteSelectedHandler() {
+    for (let id of [...selected]) {
+      let DOMElement = document.getElementById(id);
+      DOMElement.parentNode.removeChild(DOMElement);
+      favouriteService.removeFavourite(id);
+      refreshSelectSection(id);
+    }
+  }
 })();
 },{"./services/elements.service":453,"./services/favourites.service":454,"./services/handlers.service":455,"rxjs":9}],453:[function(require,module,exports){
 (() => {
@@ -22806,7 +22826,7 @@ exports.tryCatch = tryCatch;
 
   function buildResult(element, isFavourite) {
     let type = element.show ? 'show' : 'person';
-
+    let id = element[type].id;
     let li = document.createElement('li');
     let article = document.createElement('article');
     let divCover = document.createElement('div');
@@ -22859,8 +22879,10 @@ exports.tryCatch = tryCatch;
       aButton.addEventListener('click', event => {
         event.preventDefault();
         event.stopPropagation();
-        favouriteService.addToFavourite(type, element);
-        favouriteService.onSaveSubject$.next(element)
+        if (!favouriteService.isFavourite(id)) {
+          favouriteService.addToFavourite(type, element);
+          favouriteService.onSaveSubject$.next(element);
+        }
         li.parentNode.removeChild(li);
       })
       divRight.appendChild(aButton);
@@ -22876,7 +22898,7 @@ exports.tryCatch = tryCatch;
         event.stopPropagation();
         let firstChild = divRight.childNodes[0];
         firstChild.style.display = firstChild.style.display === 'none' ? 'block' : 'none';
-        favouriteService.onSelectSubject$.next(element[type].id);
+        favouriteService.onSelectSubject$.next(id);
       });
     }
 
@@ -22887,7 +22909,7 @@ exports.tryCatch = tryCatch;
     article.appendChild(divRight);
 
     // li
-    li.id = element[type].id;
+    li.id = id;
     li.className = isFavourite ? 'box favorites__item' : 'box';
     li.appendChild(article);
 
@@ -22905,7 +22927,7 @@ exports.tryCatch = tryCatch;
       span.innerHTML = tag;
       element.appendChild(span);
       element.appendChild(document.createTextNode(' '));
-    }
+    };
 
   }
 })();
@@ -22921,20 +22943,21 @@ exports.tryCatch = tryCatch;
     onSelectSubject$: onSelectSubject$,
     addToFavourite,
     removeFavourite,
-    selectFavourite,
-    getFavourites
+    getFavourites,
+    isFavourite
   };
 
-  function selectFavourite() {
-
-  }
-
   function addToFavourite(type, element) {
-    localStorage.setItem(element[type].id, JSON.stringify(element));
+    let id = element[type].id;
+    localStorage.setItem(id, JSON.stringify(element));
   }
 
-  function removeFavourite(type, element) {
-    localStorage.removeItem(element[type].id);
+  function isFavourite(id) {
+    return !!localStorage.hasOwnProperty(id);
+  }
+
+  function removeFavourite(id) {
+    localStorage.removeItem(id);
   }
 
   function getFavourites() {
