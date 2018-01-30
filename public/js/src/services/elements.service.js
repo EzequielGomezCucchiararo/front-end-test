@@ -1,11 +1,20 @@
+/**
+ * Service that hold methods to build dynamically HTMLElements
+ */
 (() => {
   const favouriteService = require('./favourites.service');
 
+  // Export service
   module.exports = {
     buildResults,
     buildResult
   };
 
+  /**
+   * @param {HTMLElement} ulDomElement - ul element to append results
+   * @param {Object[]} data - response
+   * @param {Boolean} isFavourite - if it is for build favourites list
+   */
   function buildResults(ulDomElement, data, isFavourite = false) {
     ulDomElement.innerHTML = '';
       for (let element of data) {
@@ -14,6 +23,11 @@
       }
   };
 
+  /**
+   * @param {Object} element Object that cointais an actor or serie information
+   * @param {boolean} isFavourite  - if it is for build favourite element
+   * @returns {HTMLElement} - li Element
+   */
   function buildResult(element, isFavourite) {
     let type = element.show ? 'show' : 'person';
     let id = element[type].id;
@@ -55,6 +69,7 @@
     // divRight
     divRight.className = 'media-right';
 
+    // If it is not a favourite add save button
     if (!isFavourite) {
       aButton.className = 'button is-success is-outlined';
       spanSave.innerHTML = 'Save';
@@ -66,6 +81,7 @@
       spanIcon.appendChild(icon);
       aButton.appendChild(spanSave);
       aButton.appendChild(spanIcon);
+      // Add event listener (click) and emit favourite element with the properly Subject
       aButton.addEventListener('click', event => {
         event.preventDefault();
         event.stopPropagation();
@@ -84,6 +100,7 @@
           <i class="fa fa-check"></i>
         </span>
       </a>`;
+      // Add event listener (click) and emit selected element with the properly Subject
       li.addEventListener('click', event => {
         event.stopPropagation();
         let firstChild = divRight.childNodes[0];
@@ -103,14 +120,23 @@
     li.className = isFavourite ? 'box favorites__item' : 'box';
     li.appendChild(article);
 
+    // Return li HTMLElement
     return li;
 
+    /** Add tags to a HTMLElement
+     * @param {HTMLElement} element 
+     * @param {String[]} tags 
+     */
     function addTags(element, tags) {
       for (let tag of tags) {
         createTag(element, tag);
       }
     };
 
+    /**
+     * @param {HTMLElement} element 
+     * @param {String} tag 
+     */
     function createTag(element, tag) {
       let span = document.createElement('span');
       span.className = 'tag';
